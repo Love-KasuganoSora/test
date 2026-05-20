@@ -20,6 +20,18 @@
         const methodName = data.method || data.action;
         const params = data.params !== undefined ? data.params : data.args;
 
+        // 特殊处理：如果 methodName 是 'getDcsApp'，直接返回 dcsApp 对象
+        if (methodName === 'getDcsApp') {
+            if (event.source) {
+                event.source.postMessage({
+                    status: 'success',
+                    method: methodName,
+                    result: window.dcsApp
+                }, event.origin);
+            }
+            return;
+        }
+
         if (!methodName) {
             console.warn('postMessage 缺少 method 或 action 字段:', data);
             return;
@@ -54,11 +66,23 @@
             if (event.source) {
                 event.source.postMessage({
                     status: 'not_found',
-                    method: methodName
+                    method: methodName,
+                    availableMethods: Object.keys(window.dcsApp)
                 }, event.origin);
             }
         }
     });
 
+    // 主动通知父页面 dcsApp 已就绪
+    if (window.parent !== window) {
+        window.parent.postMessage({
+            type: 'dcsAppReady',
+            message: 'dcsApp is ready',
+            availableMethods: Object.keys(window.dcsApp || {})
+        }, '*');
+    }
+
     console.log('✅ postMessage 监听器已启动，等待父页面调用 dcsApp.xxx');
+    console.log('📦 当前 dcsApp 对象:', window.dcsApp);
+    console.log('🔧 可用方法:', Object.keys(window.dcsApp || {}));
 })();
