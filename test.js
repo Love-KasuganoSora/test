@@ -48,7 +48,7 @@
                     event.source.postMessage({
                         status: 'success',
                         method: methodName,
-                        result: result
+                        result: window.dcsApp.getAnimationInfo()
                     }, event.origin);
                 }
             } catch (error) {
