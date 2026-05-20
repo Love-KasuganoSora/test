@@ -32,6 +32,19 @@
             return;
         }
 
+        if(methodName === 'goto'){
+            const page= params.page;
+            const nIdx = params.anid;
+            window.dcsApp.exitPlay();
+            dcsApp.gotoPage(page);
+            dcsApp.play();
+            dcsApp.preAnimation();
+            const data = dcsApp.getAnimationInfo();
+            if(data.currentPage === page){
+                if(data)
+            }
+        }
+
         if (!methodName) {
             console.warn('postMessage 缺少 method 或 action 字段:', data);
             return;
