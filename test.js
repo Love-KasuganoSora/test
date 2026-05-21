@@ -1,7 +1,22 @@
 (function () {
 
+
+
+    // 节流函数
+    function throttle(fn, delay = 300) {
+        let timer = null;
+        return function () {
+            if (timer) return;
+            timer = setTimeout(() => {
+                fn.apply(this, arguments);
+                timer = null;
+            }, delay);
+        };
+    }
+
     // 监听父页面的消息
     window.addEventListener('message', function (event) {
+        console.log('Received message:', event.data);
         // 解析消息数据
         let data = event.data;
 
@@ -20,17 +35,70 @@
         const methodName = data.method || data.action;
         const params = data.params !== undefined ? data.params : data.args;
 
-        // 特殊处理：如果 methodName 是 'getDcsApp'，直接返回 dcsApp 对象
-        if (methodName === 'getDcsApp') {
-            if (event.source) {
-                event.source.postMessage({
-                    status: 'success',
-                    method: methodName,
-                    result: window.dcsApp
-                }, event.origin);
+        if (methodName === 'init') {
+            if (params.type === 'ppt') {
+                try {
+                    dcsApp.play();
+                    dcsApp.exitPlay();
+                    const styleSheet = document.createElement("style");
+                    styleSheet.textContent = `.pcFooter___1lW8u { display: none !important; }`;
+                    document.head.appendChild(styleSheet);
+                    event.source.postMessage({
+                        status: 'success',
+                        method: methodName,
+                        result: window.dcsApp.getAnimationInfo()
+                    }, event.origin);
+                } catch (error) {
+                    console.error(`初始化失败:`, error);
+                }
+            } else if (params.type === "document") {
+                try {
+                    const button = document.querySelector('button[title="将内容宽度调整为适应窗口宽度"]');
+                    button.click();
+                    const btns = document.querySelector('.rightBlock___2fz75');
+                    if (btns) {
+                        btns.style.visibility = 'hidden';
+                    }
+                    const element = document.getElementById('word-content');
+                    if (element) {
+                        const fEvent = throttle(function () {
+                            const scrollTop = this.scrollTop;
+                            console.log('滚动高度：', scrollTop);
+                            event.source.postMessage({
+                                status: 'success',
+                                method: 'scroll',
+                                result: scrollTop
+                            }, event.origin);
+                            // 在这里执行你的业务逻辑
+                            // 例如：加载更多内容、改变样式等
+                        }, 100);
+                        element.removeEventListener('scroll', fEvent);
+                        element.addEventListener('scroll', fEvent);
+                    }
+                    event.source.postMessage({
+                        status: 'success',
+                        method: methodName,
+                        result: window.dcsApp.getAnimationInfo()
+                    }, event.origin);
+                } catch (error) {
+                    console.error(`初始化失败:`, error);
+                }
             }
-            return;
+            return
         }
+
+        if (methodName === 'scroll') {
+            const scrollTop = params.scrollTop;
+            const element = document.getElementById('word-content');
+            if (element) {
+                element.scroll({
+                    top: scrollTop,
+                    behavior: 'smooth'
+                });
+            }
+            return
+        }
+
 
         if (methodName === 'goto') {
             const page = params.page;
