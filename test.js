@@ -38,24 +38,26 @@
             window.dcsApp.exitPlay();
             dcsApp.gotoPage(page);
             dcsApp.play();
-            dcsApp.preAnimation();
-            const data = dcsApp.getAnimationInfo();
-            if (data.currentPage === page) {
-                if (data.currentAnimIndex !== nIdx) {
-                    const nStep = nIdx - data.currentAnimIndex;
-                    if (nStep > 0) {
-                        for (let i = 0; i < nStep; i++) {
-                            dcsApp.nextAnimation();
-                        }
-                    } else {
-                        for (let i = 0; i > nStep; i--) {
-                            dcsApp.prevAnimation();
+            setTimeout(() => {
+                dcsApp.preAnimation();
+                const data = dcsApp.getAnimationInfo();
+                if (data.currentPage === page) {
+                    if (data.currentAnimIndex !== nIdx) {
+                        const nStep = nIdx - data.currentAnimIndex;
+                        if (nStep > 0) {
+                            for (let i = 0; i < nStep; i++) {
+                                dcsApp.preAnimation();
+                            }
+                        } else {
+                            for (let i = 0; i > nStep; i--) {
+                                dcsApp.nextAnimation();
+                            }
                         }
                     }
+                } else {
+                    dcsApp.nextAnimation();
                 }
-            } else {
-                dcsApp.nextAnimation();
-            }
+            }, 300);
         }
 
         if (!methodName) {
