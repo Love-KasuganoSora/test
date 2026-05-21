@@ -1,10 +1,10 @@
-(function() {
+(function () {
 
     // 监听父页面的消息
-    window.addEventListener('message', function(event) {
+    window.addEventListener('message', function (event) {
         // 解析消息数据
         let data = event.data;
-        
+
         // 如果消息是字符串，尝试解析为 JSON
         if (typeof data === 'string') {
             try {
@@ -32,16 +32,29 @@
             return;
         }
 
-        if(methodName === 'goto'){
-            const page= params.page;
+        if (methodName === 'goto') {
+            const page = params.page;
             const nIdx = params.anid;
             window.dcsApp.exitPlay();
             dcsApp.gotoPage(page);
             dcsApp.play();
             dcsApp.preAnimation();
             const data = dcsApp.getAnimationInfo();
-            if(data.currentPage === page){
-                if(data)
+            if (data.currentPage === page) {
+                if (data.currentAnimIndex !== nIdx) {
+                    const nStep = nIdx - data.currentAnimIndex;
+                    if (nStep > 0) {
+                        for (let i = 0; i < nStep; i++) {
+                            dcsApp.nextAnimation();
+                        }
+                    } else {
+                        for (let i = 0; i > nStep; i--) {
+                            dcsApp.prevAnimation();
+                        }
+                    }
+                }
+            } else {
+                dcsApp.nextAnimation();
             }
         }
 
@@ -55,7 +68,7 @@
             try {
                 // 调用对应方法，并传递参数
                 const result = window.dcsApp[methodName](params);
-                
+
                 // 可选：回复父页面调用结果
                 if (event.source) {
                     event.source.postMessage({
