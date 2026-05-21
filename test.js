@@ -37,32 +37,53 @@
             const nIdx = params.anid;
             window.dcsApp.exitPlay();
             dcsApp.gotoPage(page);
-            dcsApp.play();
             setTimeout(() => {
-                dcsApp.preAnimation();
-                let data = dcsApp.getAnimationInfo();
-                if (data.currentPage === page) {
-                    if (data.currentAnimIndex !== nIdx) {
-                        const nStep = nIdx - data.currentAnimIndex;
-                        if (nStep > 0) {
-                            for (let i = 0; i < nStep; i++) {
-                                dcsApp.preAnimation();
-                            }
-                        } else {
-                            for (let i = 0; i > nStep; i--) {
-                                dcsApp.nextAnimation();
+                dcsApp.play();
+                setTimeout(() => {
+                    dcsApp.preAnimation();
+                    let data = dcsApp.getAnimationInfo();
+                    if (data.currentPage === page) {
+                        if (data.currentAnimIndex !== nIdx) {
+                            const nStep = nIdx - data.currentAnimIndex;
+                            if (nStep > 0) {
+                                for (let i = 0; i < nStep; i++) {
+                                    setTimeout(() => {
+                                        dcsApp.nextAnimation();
+                                    });
+                                }
+                            } else {
+                                for (let i = 0; i > nStep; i--) {
+                                    setTimeout(() => {
+                                        dcsApp.preAnimation();
+                                    });
+                                }
                             }
                         }
+                    } else {
+                        dcsApp.preAnimation();
+                        setTimeout(() => {
+                            data = dcsApp.getAnimationInfo();
+                            if (data.currentAnimIndex !== nIdx) {
+                                const nStep = nIdx - data.currentAnimIndex;
+                                if (nStep > 0) {
+                                    for (let i = 0; i < nStep; i++) {
+                                        setTimeout(() => {
+                                            dcsApp.nextAnimation();
+                                        });
+                                    }
+                                } else {
+                                    for (let i = 0; i > nStep; i--) {
+                                        setTimeout(() => {
+                                            dcsApp.preAnimation();
+                                        });
+                                    }
+                                }
+                            }
+                        }, 300);
                     }
-                } else {
-                    while (data.currentPage !== page && data.currentAnimIndex !== nIdx) {
-                        dcsApp.nextAnimation();
-                        data = dcsApp.getAnimationInfo();
-                        console.log(data)
-                    }
-                }
+                }, 1000);
             }, 300);
-            return;
+            return
         }
 
         if (!methodName) {
