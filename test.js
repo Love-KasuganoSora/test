@@ -40,7 +40,7 @@
             dcsApp.play();
             setTimeout(() => {
                 dcsApp.preAnimation();
-                const data = dcsApp.getAnimationInfo();
+                let data = dcsApp.getAnimationInfo();
                 if (data.currentPage === page) {
                     if (data.currentAnimIndex !== nIdx) {
                         const nStep = nIdx - data.currentAnimIndex;
@@ -55,9 +55,14 @@
                         }
                     }
                 } else {
-                    dcsApp.nextAnimation();
+                    while (data.currentPage !== page && data.currentAnimIndex !== nIdx) {
+                        dcsApp.nextAnimation();
+                        data = dcsApp.getAnimationInfo();
+                        console.log(data)
+                    }
                 }
             }, 300);
+            return;
         }
 
         if (!methodName) {
