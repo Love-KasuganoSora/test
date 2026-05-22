@@ -63,11 +63,12 @@
                     if (element) {
                         const fEvent = throttle(function () {
                             const scrollTop = this.scrollTop;
+                            const scrollHeight = this.scrollHeight;
                             console.log('滚动高度：', scrollTop);
                             event.source.postMessage({
                                 status: 'success',
                                 method: 'scroll',
-                                result: scrollTop
+                                result: scrollTop / scrollHeight
                             }, event.origin);
                             // 在这里执行你的业务逻辑
                             // 例如：加载更多内容、改变样式等
@@ -92,7 +93,7 @@
             const element = document.getElementById('word-content');
             if (element) {
                 element.scroll({
-                    top: scrollTop,
+                    top: scrollTop * element.scrollHeight,
                     behavior: 'smooth'
                 });
             }
